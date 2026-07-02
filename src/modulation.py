@@ -105,7 +105,7 @@ def test_modulation():
     print(f"   输入比特数: {len(bits_bpsk)}")
     print(f"   输出符号数: {len(symbols_bpsk)}")
     print(f"   唯一符号: {np.unique(symbols_bpsk)}")
-    plot_constellation(symbols_bpsk[:100], "BPSK星座图", "bpsk_constellation.png")
+    plot_constellation(symbols_bpsk[:100], "BPSK Constellation", "bpsk_constellation.png")
     print("   ✅ BPSK测试通过")
 
     bits_qpsk = np.random.randint(0, 2, 1000)
@@ -114,7 +114,7 @@ def test_modulation():
     print(f"   输入比特数: {len(bits_qpsk)}")
     print(f"   输出符号数: {len(symbols_qpsk)}")
     print(f"   符号幅度: {np.abs(symbols_qpsk[:4])}")
-    plot_constellation(symbols_qpsk[:200], "QPSK星座图", "qpsk_constellation.png")
+    plot_constellation(symbols_qpsk[:200], "QPSK Constellation", "qpsk_constellation.png")
     print("   ✅ QPSK测试通过")
 
     bits_qam = np.random.randint(0, 2, 1000)
@@ -123,7 +123,7 @@ def test_modulation():
     print(f"   输入比特数: {len(bits_qam)}")
     print(f"   输出符号数: {len(symbols_qam)}")
     print(f"   唯一符号数量: {len(np.unique(symbols_qam))}")
-    plot_constellation(symbols_qam[:250], "16-QAM星座图", "16qam_constellation.png")
+    plot_constellation(symbols_qam[:250], "16-QAM Constellation", "16qam_constellation.png")
     print("   ✅ 16-QAM测试通过")
 
     print("\n" + "=" * 50)

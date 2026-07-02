@@ -7,40 +7,47 @@ import subprocess
 import sys
 import os
 import json
+import re
 
 
 def run_pytest(test_file, test_name):
     """运行pytest测试并返回结果"""
+
     try:
         result = subprocess.run(
-            [sys.executable, '-m', 'pytest', test_file, '-v', '--tb=short', '--json-report', '--json-report-file=temp_report.json'],
+            [sys.executable, '-m', 'pytest', test_file, '-v', '--tb=short'],
             capture_output=True,
             text=True,
-            timeout=60
+            timeout=60,
+            encoding='utf-8',
+            errors='replace'
         )
-        
-        # 尝试解析JSON报告
-        if os.path.exists('temp_report.json'):
-            with open('temp_report.json', 'r') as f:
-                report = json.load(f)
-            os.remove('temp_report.json')
-            
-            total = report.get('summary', {}).get('total', 0)
-            passed = report.get('summary', {}).get('passed', 0)
-            
-            return passed, total, result.returncode == 0
-        else:
-            # 回退方案：解析输出文本
-            if 'passed' in result.stdout:
-                # 尝试从输出中提取通过的测试数
-                import re
-                match = re.search(r'(\d+) passed', result.stdout)
-                if match:
-                    passed = int(match.group(1))
-                    return passed, passed, True
-            
+
+        stdout = result.stdout
+
+        # 解析pytest文本输出
+        # 匹配格式: "7 passed in 0.46s" 或 "5 passed, 2 failed in 0.46s"
+        passed = 0
+        failed = 0
+
+        passed_match = re.search(r'(\d+)\s+passed', stdout)
+        if passed_match:
+            passed = int(passed_match.group(1))
+
+        failed_match = re.search(r'(\d+)\s+failed', stdout)
+        if failed_match:
+            failed = int(failed_match.group(1))
+
+        total = passed + failed
+
+        if total == 0:
+            # 如果没有匹配到passed/failed，尝试看是否有其他错误
+            if result.returncode != 0:
+                return 0, 1, False
             return 0, 1, False
-            
+
+        return passed, total, result.returncode == 0
+
     except subprocess.TimeoutExpired:
         print(f"  ⏱️ {test_name}超时")
         return 0, 1, False
@@ -66,7 +73,9 @@ def calculate_grade():
             [sys.executable, 'src/test_environment.py'],
             capture_output=True,
             text=True,
-            timeout=30
+            timeout=30,
+            encoding='utf-8',
+            errors='replace'
         )
         if result.returncode == 0:
             env_score = 5
@@ -130,10 +139,11 @@ def calculate_grade():
             [sys.executable, 'grading/check_report.py'],
             capture_output=True,
             text=True,
-            timeout=10
+            timeout=10,
+            encoding='utf-8',
+            errors='replace'
         )
         # 从输出中提取分数
-        import re
         match = re.search(r'最终报告得分:\s*(\d+)', result.stdout)
         if match:
             report_score = int(match.group(1))
@@ -154,15 +164,17 @@ def calculate_grade():
             [sys.executable, '-m', 'pylint', 'src/modulation.py', '--score=y'],
             capture_output=True,
             text=True,
-            timeout=30
+            timeout=30,
+            encoding='utf-8',
+            errors='replace'
         )
-        
-        # 提取pylint分数
-        import re
-        match = re.search(r'Your code has been rated at ([\d.]+)/10', result.stdout)
+
+        # 提取pylint分数（可能在stdout或stderr中）
+        combined_output = result.stdout + result.stderr
+        match = re.search(r'Your code has been rated at ([\d.]+)/10', combined_output)
         if match:
             pylint_score_raw = float(match.group(1))
-            
+
             if pylint_score_raw >= 8.0:
                 pylint_bonus = 5
                 print(f"  ✅ 代码质量优秀 ({pylint_score_raw}/10): +5分")

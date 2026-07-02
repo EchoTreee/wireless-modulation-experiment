@@ -104,7 +104,7 @@ def compare_modulations():
         
         plt.xlabel('SNR (dB)', fontsize=12)
         plt.ylabel('Bit Error Rate (BER)', fontsize=12)
-        plt.title('数字调制方式性能对比', fontsize=14, fontweight='bold')
+        plt.title('BER Performance Comparison of Digital Modulations', fontsize=14, fontweight='bold')
         plt.legend(fontsize=11)
         plt.grid(True, which='both', alpha=0.3)
         

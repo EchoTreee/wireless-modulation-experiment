@@ -7,6 +7,11 @@ on:
     branches:
       - main
 
+permissions:
+  contents: read
+  issues: write
+  pull-requests: write
+
 jobs:
   grading:
     runs-on: ubuntu-latest
@@ -24,6 +29,11 @@ jobs:
       run: |
         python -m pip install --upgrade pip
         pip install -r requirements.txt
+
+    - name: 生成实验结果文件
+      run: |
+        python src/modulation.py
+        python src/performance_test.py
         
     - name: 运行环境测试
       id: env_test
@@ -86,7 +96,7 @@ jobs:
           pylint_result.txt
           
     - name: 评论PR
-      if: github.event_name == 'pull_request'
+      if: github.event_name == 'pull_request' && github.event.pull_request.head.repo.full_name == github.repository
       uses: actions/github-script@v6
       with:
         script: |

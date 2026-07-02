@@ -12,12 +12,14 @@ def setup_chinese_font():
     """
     设置matplotlib支持中文显示
     """
-    try:
-        # Windows系统使用微软雅黑
-        plt.rcParams['font.sans-serif'] = ['Microsoft YaHei', 'SimHei', 'Arial Unicode MS']
-        plt.rcParams['axes.unicode_minus'] = False  # 解决负号显示问题
-    except Exception:
-        print("警告: 无法设置中文字体，图表标签可能显示为方框")
+    plt.rcParams['font.sans-serif'] = [
+        'DejaVu Sans',
+        'Noto Sans CJK SC',
+        'Microsoft YaHei',
+        'SimHei',
+        'Arial Unicode MS',
+    ]
+    plt.rcParams['axes.unicode_minus'] = False
 
 
 def plot_constellation(symbols, title, filename, show_grid=True):
@@ -56,8 +58,8 @@ def plot_constellation(symbols, title, filename, show_grid=True):
         plt.grid(True, alpha=0.3)
     
     # 标签
-    plt.xlabel('实部 (In-phase)', fontsize=12)
-    plt.ylabel('虚部 (Quadrature)', fontsize=12)
+    plt.xlabel('Real Part (In-phase)', fontsize=12)
+    plt.ylabel('Imaginary Part (Quadrature)', fontsize=12)
     plt.title(title, fontsize=14, fontweight='bold')
     
     # 设置相等的纵横比
